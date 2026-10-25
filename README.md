@@ -69,3 +69,7 @@ Edit the constants at the top of `prayer_times.py`:
 | `COUNTDOWN_MINUTES` | `20` |
 
 After you change the location or method, delete `~/.cache/prayer-times/` so the times are fetched again.
+
+## License
+
+[MIT](LICENSE)
