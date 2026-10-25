@@ -1,0 +1,15 @@
+# Add ${custom.salah} and ${custom.muted} to your top-level `format`, in place of $time.
+# The separators and colours match the catppuccin-powerline preset (palette catppuccin_mocha).
+
+[custom.salah]
+command = "python3 -I ~/.config/starship/prayer_times.py salah"
+when = true
+shell = ["sh"]
+format = '([](fg:sapphire bg:lavender)[ $output ](fg:crust bg:lavender)[ ](fg:lavender))'
+
+[custom.muted]
+command = "python3 -I ~/.config/starship/prayer_times.py muted"
+when = true
+shell = ["sh"]
+format = '([](fg:sapphire bg:surface1)[ $output ](italic fg:subtext1 bg:surface1)[ ](fg:surface1))'
+
