@@ -1,15 +1,35 @@
-# Add ${custom.salah} and ${custom.muted} to your top-level `format`, in place of $time.
+# Add ${custom.salah}${custom.muted}${custom.salah_windows}${custom.muted_windows} to your top-level
+# `format`, in place of $time. Each block has a macOS/Linux and a Windows variant, and `os` shows
+# only the one for the current system, so the same config works on both.
 # The separators and colours match the catppuccin-powerline preset (palette catppuccin_mocha).
 
 [custom.salah]
 command = "python3 -I ~/.config/starship/prayer_times.py salah"
 when = true
+os = "unix"
 shell = ["sh"]
 format = '([](fg:sapphire bg:lavender)[ $output ](fg:crust bg:lavender)[ ](fg:lavender))'
 
 [custom.muted]
 command = "python3 -I ~/.config/starship/prayer_times.py muted"
 when = true
+os = "unix"
 shell = ["sh"]
 format = '([](fg:sapphire bg:surface1)[ $output ](italic fg:subtext1 bg:surface1)[ ](fg:surface1))'
 
+# Windows has no `sh`, and `python3` is often the Microsoft Store stub. Python itself is the shell here:
+# the `py` launcher reads the command from stdin (`-`) and runs the script with the mode as its argument.
+
+[custom.salah_windows]
+command = "import os, runpy; runpy.run_path(os.path.expanduser('~/.config/starship/prayer_times.py'), run_name='__main__')"
+when = true
+os = "windows"
+shell = ["py", "-3", "-I", "-", "salah"]
+format = '([](fg:sapphire bg:lavender)[ $output ](fg:crust bg:lavender)[ ](fg:lavender))'
+
+[custom.muted_windows]
+command = "import os, runpy; runpy.run_path(os.path.expanduser('~/.config/starship/prayer_times.py'), run_name='__main__')"
+when = true
+os = "windows"
+shell = ["py", "-3", "-I", "-", "muted"]
+format = '([](fg:sapphire bg:surface1)[ $output ](italic fg:subtext1 bg:surface1)[ ](fg:surface1))'

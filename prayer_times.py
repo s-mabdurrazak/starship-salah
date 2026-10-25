@@ -55,14 +55,15 @@ def fetch(day):
         f"&school={SCHOOL}&timezonestring={TIMEZONE}"
     )
     result = subprocess.run(
-        ["curl", "-sf", "--max-time", "10", url], capture_output=True, text=True
+        ["curl", "-sf", "--max-time", "10", url],
+        capture_output=True, text=True, encoding="utf-8",
     )
     if result.returncode != 0:
         return
     timings = json.loads(result.stdout)["data"]["timings"]
     os.makedirs(CACHE_DIR, exist_ok=True)
     tmp = cache_path(day) + ".tmp"
-    with open(tmp, "w") as f:
+    with open(tmp, "w", encoding="utf-8") as f:
         json.dump(timings, f)
     os.replace(tmp, cache_path(day))
 
@@ -84,7 +85,7 @@ def fetch_missing(today):
 def load(day):
     """Return {prayer: datetime} for a day, or None if it is not cached yet."""
     try:
-        with open(cache_path(day)) as f:
+        with open(cache_path(day), encoding="utf-8") as f:
             timings = json.load(f)
     except (OSError, ValueError):
         return None
@@ -152,6 +153,8 @@ def label(now):
 def main():
     mode = sys.argv[1] if len(sys.argv) > 1 else "salah"
     now = datetime.now()
+    # Starship reads UTF-8; a piped stdout on Windows defaults to the ANSI code page.
+    sys.stdout.reconfigure(encoding="utf-8")
 
     if mode == "fetch":
         fetch_missing(now.date())
@@ -160,10 +163,16 @@ def main():
     text, muted = label(now)
     needed = [now.date() + timedelta(days=o) for o in (-1, 0, 1)]
     if any(not os.path.exists(cache_path(d)) for d in needed):
+        if os.name == "nt":
+            # A hidden console, which curl inherits, so no window flashes.
+            detach = {"creationflags": subprocess.CREATE_NO_WINDOW
+                      | subprocess.CREATE_NEW_PROCESS_GROUP}
+        else:
+            detach = {"start_new_session": True}
         subprocess.Popen(
             [sys.executable, "-I", os.path.abspath(__file__), "fetch"],
             stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL, start_new_session=True,
+            stderr=subprocess.DEVNULL, **detach,
         )
 
     clock = now.strftime(TIME_FORMAT)
